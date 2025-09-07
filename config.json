@@ -1,1 +1,10 @@
-
+{
+  "email": "your_email@example.com",
+  "password": "your_password",
+  "botName": "My Awesome Bot",
+  "prefix": "!",
+  "admins": [
+    "61565208716445",
+    "admin_user_id_2"
+  ]
+}
