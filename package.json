@@ -6,7 +6,7 @@
   "scripts": {
     "start": "node index.js"
   },
-  "dependencies": {
+  //"dependencies": {
   "@adiwajshing/baileys": "6.7.5" // or a specific, existing version like "6.x.x"
   },
     "axios": "^1.6.7",
