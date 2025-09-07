@@ -1,5 +1,5 @@
 {
-  "name": "evan-chat-bot",
+  "name": "messenger-bot",
   "version": "1.0.0",
   "description": "A simple Messenger bot developed using Node.js",
   "main": "index.js",
@@ -11,7 +11,7 @@
     "bot",
     "nodejs"
   ],
-  "author": "EVAN RAJ",
+  "author": "Your Name",
   "license": "ISC",
   "dependencies": {
     "facebook-chat-api": "^1.8.0"
