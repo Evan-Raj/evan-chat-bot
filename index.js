@@ -1,43 +1,73 @@
+// EVAN RAJ 🐺
+// This is an advanced and secure bot core file.
+
 const fs = require('fs');
-const login = require('facebook-chat-api');
-const config = require('./config.json');
+const path = require('path');
+const login = require('fca-unofficial');
+const chalk = require('chalk');
+const config = require('./core/config');
+const logger = require('./core/logger');
+const loader = require('./core/loader');
 
-const botName = config.botName;
-const prefix = config.prefix;
-const admins = config.admins;
+// Define a colorful banner for the bot
+const BOT_BANNER = chalk.bold.hex('#F5B041')(`
+ ___________________________________________________________
+|                                                           |
+|                 ${chalk.bold.hex('#93A2AD')('EVAN RAJ')} - ${chalk.bold.hex('#FFFFFF')('My Bot')} 🐺                   |
+|___________________________________________________________|
+|                                                           |
+|              Loading an advanced and secure bot...        |
+|___________________________________________________________|
+`);
 
-let appState;
-try {
-  appState = JSON.parse(fs.readFileSync('appState.json', 'utf8'));
-} catch (e) {
-  console.error("appState.json ফাইল খুঁজে পাওয়া যায়নি অথবা ত্রুটিপূর্ণ।");
-  console.log("প্রথমবার ইমেইল ও পাসওয়ার্ড দিয়ে লগইন করার কোডটি ব্যবহার করুন।");
-  process.exit(1);
-}
+console.log(BOT_BANNER);
 
-login({ appState: appState }, (err, api) => {
-    if (err) return console.error(err);
+// Load all commands and events from their respective directories
+const commands = loader.loadModules('commands', 'COMMANDS');
+const events = loader.loadModules('events', 'EVENTS');
 
-    console.log(`${botName} সফলভাবে চালু হয়েছে!`);
-    api.listenMqtt((err, event) => {
-        if (err) return console.error(err);
-        
-        if (event.type === "message" && event.body) {
-            const messageBody = event.body;
-            const senderID = event.senderID;
+// Start the bot login process
+login(config.fcaOption, (err, api) => {
+  if (err) {
+    logger.log(chalk.red.bold(`Login failed: ${err.message}`), "error");
+    return console.error(err);
+  }
+  
+  logger.log(chalk.green.bold("Login successful! Bot is now online."), "info");
 
-            if (messageBody && messageBody.startsWith(prefix)) {
-                const args = messageBody.slice(prefix.length).trim().split(/ +/);
-                const command = args.shift().toLowerCase();
+  api.setOptions({
+    selfListen: config.fcaOption.selfListen,
+    logLevel: 'silent', // Setting log level to silent to let our custom logger handle it
+  });
 
-                if (command === "ping") {
-                    api.sendMessage("Pong!", event.threadID);
-                }
+  api.listenMqtt(async (err, event) => {
+    if (err) return logger.log(chalk.red.bold(`MQTT error: ${err.message}`), "error");
+    
+    // Command handling
+    if (event.type === "message" && event.body) {
+      const args = event.body.split(" ");
+      const commandName = args.shift().toLowerCase().slice(config.prefix.length);
 
-                if (admins.includes(senderID)) {
-                    // অ্যাডমিনদের জন্য বিশেষ কমান্ড এখানে যুক্ত হবে
-                }
-            }
+      if (commands.has(commandName)) {
+        try {
+          commands.get(commandName).execute(api, event, args);
+          logger.log(chalk.cyan(`Executed command: ${commandName} by ${event.senderID}`), "info");
+        } catch (error) {
+          logger.log(chalk.red.bold(`Error executing command: ${commandName}`), "error");
+          console.error(error);
         }
-    });
+      }
+    }
+
+    // Event handling
+    if (events.has(event.type)) {
+      try {
+        events.get(event.type).execute(api, event);
+        logger.log(chalk.magenta(`Executed event: ${event.type}`), "info");
+      } catch (error) {
+        logger.log(chalk.red.bold(`Error executing event: ${event.type}`), "error");
+        console.error(error);
+      }
+    }
+  });
 });
