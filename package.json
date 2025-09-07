@@ -7,7 +7,7 @@
     "start": "node index.js"
   },
   "dependencies": {
-  "@adiwajshing/baileys": "latest" // or a specific, existing version like "6.x.x"
+  "@adiwajshing/baileys": "6.7.5" // or a specific, existing version like "6.x.x"
   },
     "axios": "^1.6.7",
     "dotenv": "^16.3.1",
