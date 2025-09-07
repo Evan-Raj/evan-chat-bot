@@ -1,4 +1,4 @@
-import makeWASocket, { useMultiFileAuthState } from "@adiwajshing/baileys";
+import makeWASocket, { useMultiFileAuthState } from "@adiwajshing/baileys": "6.7.5";
 import axios from "axios";
 import express from "express";
 import * as dotenv from "dotenv";
