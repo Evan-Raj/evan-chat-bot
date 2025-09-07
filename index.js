@@ -2,12 +2,10 @@ const fs = require('fs');
 const login = require('facebook-chat-api');
 const config = require('./config.json');
 
-// config ফাইল থেকে তথ্যগুলো বের করে নেওয়া
 const botName = config.botName;
 const prefix = config.prefix;
 const admins = config.admins;
 
-// appState.json ফাইল থেকে appState পড়ে নেওয়া
 let appState;
 try {
   appState = JSON.parse(fs.readFileSync('appState.json', 'utf8'));
@@ -24,7 +22,8 @@ login({ appState: appState }, (err, api) => {
     api.listenMqtt((err, event) => {
         if (err) return console.error(err);
         
-        if (event.type === 'message') {
+        // এটিই গুরুত্বপূর্ণ অংশ: মেসেজ ইভেন্ট কিনা তা পরীক্ষা করা
+        if (event.type === "message" && event.body) {
             const messageBody = event.body;
             const senderID = event.senderID;
 
@@ -32,14 +31,12 @@ login({ appState: appState }, (err, api) => {
                 const args = messageBody.slice(prefix.length).trim().split(/ +/);
                 const command = args.shift().toLowerCase();
 
-                // উদাহরণস্বরূপ, একটি 'ping' কমান্ড
                 if (command === "ping") {
                     api.sendMessage("Pong!", event.threadID);
                 }
 
-                // যদি অ্যাডমিনদের মধ্যে একজন কমান্ড দেয়
                 if (admins.includes(senderID)) {
-                    // এখানে অ্যাডমিনদের জন্য বিশেষ কমান্ড যুক্ত করা যাবে
+                    // অ্যাডমিনদের জন্য কমান্ড এখানে যুক্ত হবে
                 }
             }
         }
