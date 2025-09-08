@@ -5,15 +5,15 @@ const fs = require('fs');
 const path = require('path');
 const login = require('fca-unofficial');
 const chalk = require('chalk');
-const config = require('./core/config');
-const logger = require('./core/logger');
-const loader = require('./core/loader');
+const config = require('./utils/config');
+const logger = require('./utils/logger');
+const loader = require('./utils/loader');
 
 // Define a colorful banner for the bot
 const BOT_BANNER = chalk.bold.hex('#F5B041')(`
  ___________________________________________________________
 |                                                           |
-|                 ${chalk.bold.hex('#93A2AD')('EVAN RAJ')} - ${chalk.bold.hex('#FFFFFF')('My Bot')} 🐺                   |
+|                 ${chalk.bold.hex('#93A2AD')('EVAN RAJ')} - ${chalk.bold.hex('#FFFFFF')('EVAN RAJ')} 🐺                   |
 |___________________________________________________________|
 |                                                           |
 |              Loading an advanced and secure bot...        |
