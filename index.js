@@ -1,7 +1,7 @@
 // EVAN RAJ 🐺
 // This is an advanced and secure bot core file.
 
-import login from 'fca-unofficial';
+import login from 'priyanshu-fca';
 import chalk from 'chalk';
 import * as config from './utils/config.js';
 import { logger } from './utils/logger.js';
