@@ -1,19 +1,11 @@
-// A utility file for the bot to perform various helper tasks
-// This file is designed to be imported by other modules (e.g., commands, events)
-// It contains reusable functions for common operations.
+// utils/index.js
 
-const axios = require('axios');
-const fs = require('fs');
-const path = require('path');
-const logger = require('../utils/logger'); // The bot's custom logger
+import axios from 'axios';
+import fs from 'fs';
+import path from 'path';
+import { logger } from './logger.js'; // The path is correct since logger.js is in the same folder
 
-class Utilities {
-  /**
-   * Removes the command prefix from a message.
-   * @param {string} message The raw message body.
-   * @param {string} prefix The bot's command prefix.
-   * @returns {string} The cleaned message.
-   */
+export class Utilities {
   static removePrefix(message, prefix) {
     if (message.startsWith(prefix)) {
       return message.slice(prefix.length).trim();
@@ -21,12 +13,6 @@ class Utilities {
     return message.trim();
   }
 
-  /**
-   * Downloads a file from a URL.
-   * @param {string} url The URL of the file.
-   * @param {string} filePath The local path to save the file.
-   * @returns {Promise<string>} A promise that resolves with the file path.
-   */
   static async downloadFile(url, filePath) {
     try {
       const response = await axios({
@@ -39,40 +25,23 @@ class Utilities {
         response.data.pipe(writer);
         writer.on('finish', () => resolve(filePath));
         writer.on('error', (err) => {
-          logger.log(`Failed to write file from ${url}`, 'error');
+          logger.error(`Failed to write file from ${url}`);
           reject(err);
         });
       });
     } catch (error) {
-      logger.log(`Failed to download file from ${url}: ${error.message}`, 'error');
+      logger.error(`Failed to download file from ${url}: ${error.message}`);
       throw error;
     }
   }
 
-  /**
-   * Deletes a file from the local filesystem.
-   * @param {string} filePath The path of the file to delete.
-   */
   static deleteFile(filePath) {
     fs.unlink(filePath, (err) => {
       if (err) {
-        logger.log(`Failed to delete file: ${filePath}`, 'error');
+        logger.error(`Failed to delete file: ${filePath}`);
       } else {
-        logger.log(`Successfully deleted file: ${filePath}`, 'info');
+        logger.info(`Successfully deleted file: ${filePath}`);
       }
     });
   }
-
-  /**
-   * Generates a unique filename using a timestamp and a random number.
-   * @param {string} extension The file extension (e.g., 'jpg', 'gif').
-   * @returns {string} A unique filename.
-   */
-  static generateUniqueFilename(extension) {
-    const timestamp = Date.now();
-    const randomNumber = Math.floor(Math.random() * 10000);
-    return `${timestamp}_${randomNumber}.${extension}`;
-  }
 }
-
-module.exports = Utilities;
