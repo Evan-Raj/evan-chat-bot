@@ -1,73 +1,76 @@
-// EVAN RAJ 🐺
-// This is an advanced and secure bot core file.
+const { spawn } = require("child_process");
+const axios = require("axios");
+const logger = require("./utils/log");
 
-import login from 'priyanshu-fca';
-import chalk from 'chalk';
-import * as config from './utils/config.js';
-import { logger } from './utils/logger.js';
-import loader from './utils/loader.js';
+///////////////////////////////////////////////////////////
+//========= Create website for dashboard/uptime =========//
+///////////////////////////////////////////////////////////
 
-// Define a colorful banner for the bot
-const BOT_BANNER = chalk.bold.hex('#F5B041')(`
- ___________________________________________________________
-|                                                           |
-|             ${chalk.bold.hex('#93A2AD')('EVAN RAJ')} - ${chalk.bold.hex('#FFFFFF')('WOLF)} 🐺           |
-|___________________________________________________________|
-|                                                           |
-|           Loading an advanced and secure bot...           |
-|___________________________________________________________|
-`);
+const express = require('express');
+const path = require('path');
 
-console.log(BOT_BANNER);
+const app = express();
+const port = process.env.PORT || 8080;
 
-// Load all commands and events from their respective directories
-const commands = await loader.loadModules('commands');
-const events = await loader.loadModules('events');
-
-// Start the bot login process
-login(config.fcaOption, async (err, api) => {
-  if (err) {
-    logger.error(`Login failed: ${err.message}`);
-    return;
-  }
-  
-  logger.info("Login successful! Bot is now online.");
-
-  api.setOptions({
-    selfListen: config.fcaOption.selfListen,
-    logLevel: 'silent',
-  });
-
-  api.listenMqtt(async (err, event) => {
-    if (err) return logger.error(`MQTT error: ${err.message}`);
-    
-    // Command handling
-    if (event.type === "message" && event.body) {
-      const args = event.body.split(" ");
-      const commandName = args.shift().toLowerCase().slice(config.prefix.length);
-      
-      const command = commands.get(commandName);
-      if (command) {
-        try {
-          await command.execute(api, event, args);
-          logger.info(`Executed command: ${commandName} by ${event.senderID}`);
-        } catch (error) {
-          logger.error(`Error executing command '${commandName}': ${error.message}`);
-          console.error(error);
-        }
-      }
-    }
-
-    // Event handling
-    const eventHandler = events.get(event.type);
-    if (eventHandler) {
-      try {
-        await eventHandler.execute(api, event);
-        logger.info(`Executed event: ${event.type}`);
-      } catch (error) {
-        logger.error(`Error executing event '${event.type}': ${error.message}`);
-        console.error(error);
-      }
-    }
-  });
+// Serve the index.html file
+app.get('/', function (req, res) {
+    res.sendFile(path.join(__dirname, '/index.html'));
 });
+
+// Start the server and add error handling
+app.listen(port, () => {
+    logger(`Server is running on port ${port}...`, "[ EVAN RAJ ]");
+}).on('error', (err) => {
+    if (err.code === 'EACCES') {
+        logger(`Permission denied. Cannot bind to port ${port}.`, "[ EVAN RAJ ]");
+    } else {
+        logger(`Server error: ${err.message}`, "[ Kripya Dhyan de ]");
+    }
+});
+
+/////////////////////////////////////////////////////////
+//========= Start bot with auto-restart on crash =======//
+/////////////////////////////////////////////////////////
+
+global.countRestart = global.countRestart || 0;
+
+function startBot(message) {
+    if (message) logger(message, "[ EVAN RAJ ]");
+
+    const child = spawn("node", ["--trace-warnings", "--async-stack-traces", "WOLF🐺.js"], {
+        cwd: __dirname,
+        stdio: "inherit",
+        shell: true
+    });
+
+    child.on("close", (codeExit) => {
+        if (codeExit !== 0 && global.countRestart < 5) {
+            global.countRestart++;
+            logger(`Bot exited with code ${codeExit}. Restarting... (${global.countRestart}/5)`, "[ WOLF🐺 ]");
+            startBot();
+        } else {
+            logger(`Bot stopped after ${global.countRestart} restarts.`, "[ MirrKal]");
+        }
+    });
+
+    child.on("error", (error) => {
+        logger(`An error occurred: ${JSON.stringify(error)}`, "[ WOLF🐺 ]");
+    });
+}
+
+////////////////////////////////////////////////
+//========= Check update from GitHub =========//
+////////////////////////////////////////////////
+
+axios.get("https://raw.githubusercontent.com/priyanshu192/bot/main/package.json")
+    .then((res) => {
+        logger(res.data.name, "[ EVAN RAJ ]");
+        logger(`Version: ${res.data.version}`, "[ EVAN RAJ]");
+        logger(res.data.description, "[ EVAN RAJ ]");
+    })
+    .catch((err) => {
+        logger(`Failed to fetch update info: ${err.message}`, "[ WOLF🐺 ]");
+    });
+
+// Start the bot
+startBot();
