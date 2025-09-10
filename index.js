@@ -24,7 +24,7 @@ app.listen(port, () => {
     if (err.code === 'EACCES') {
         logger(`Permission denied. Cannot bind to port ${port}.`, "[ EVAN RAJ ]");
     } else {
-        logger(`Server error: ${err.message}`, "[ Kripya Dhyan de ]");
+        logger(`Server error: ${err.message}`, "[ নজর রাইখো নতুন কিছুর জন্য  ]");
     }
 });
 
@@ -37,7 +37,7 @@ global.countRestart = global.countRestart || 0;
 function startBot(message) {
     if (message) logger(message, "[ EVAN RAJ ]");
 
-    const child = spawn("node", ["--trace-warnings", "--async-stack-traces", "WOLF🐺.js"], {
+    const child = spawn("node", ["--trace-warnings", "--async-stack-traces", "raj.js"], {
         cwd: __dirname,
         stdio: "inherit",
         shell: true
