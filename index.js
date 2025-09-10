@@ -49,7 +49,7 @@ function startBot(message) {
             logger(`Bot exited with code ${codeExit}. Restarting... (${global.countRestart}/5)`, "[ WOLF🐺 ]");
             startBot();
         } else {
-            logger(`Bot stopped after ${global.countRestart} restarts.`, "[ MirrKal]");
+            logger(`Bot stopped after ${global.countRestart} restarts.`, "[ EVAN RAJ]");
         }
     });
 
